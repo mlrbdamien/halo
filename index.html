@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Halo Modèles</title>
+<style>
+html,body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+/* Layout: one nuance surface at the top (the chosen texture, full width), the twelve nuances as a picker
+   under it, then the twelve documents in three app groups, each card a small live preview in that nuance. */
+:root {
+  --bg: #F5F5F7;
+  --surface: #FFFFFF;
+  --ink: #1D1D1F;
+  --ink-2: #6C6C70;
+  --ink-3: #AEAEB2;
+  --line: #D8D8DC;
+  --paper: #FFFFFF;
+  --paper-line: #E5E5EA;
+  --paper-ink: #1D1D1F;
+  --focus: #0071E3;
+  --ok: #1E7F3C;
+  --err: #C8001C;
+  --accent: #2B5C86;          /* set from the chosen nuance: middle stop */
+  --accent-light: #9CC9F0;    /* light stop, used as accent on dark */
+  --ui-accent: var(--accent);
+  --font: "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --r: 14px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B0B0D; --surface: #1C1C1E; --ink: #F5F5F7; --ink-2: #AEAEB2; --ink-3: #6C6C70; --line: #38383A;
+    --focus: #4BA3FF; --ok: #4CD27A; --err: #FF6B6B; --ui-accent: var(--accent-light); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B0B0D; --surface: #1C1C1E; --ink: #F5F5F7; --ink-2: #AEAEB2; --ink-3: #6C6C70; --line: #38383A;
+  --focus: #4BA3FF; --ok: #4CD27A; --err: #FF6B6B; --ui-accent: var(--accent-light); color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.45 var(--font); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; padding-block: 20px 56px; display: grid; gap: 28px; }
+
+/* hero: the nuance surface itself */
+.hero { position: relative; border-radius: 22px; overflow: hidden; min-height: 260px; display: flex; align-items: flex-end;
+  background: var(--accent) center / cover no-repeat; background-image: var(--art); color: #FFFFFF; }
+.hero-in { padding: 28px; display: grid; gap: 6px; max-width: 640px; }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .8; }
+.hero h1 { margin: 0; font-size: clamp(44px, 9vw, 88px); line-height: .92; font-weight: 700; letter-spacing: -.035em; }
+.hero p { margin: 6px 0 0; font-size: 16px; opacity: .88; max-width: 46ch; }
+.hero .now { position: absolute; top: 20px; right: 22px; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 99px;
+  background: rgba(255,255,255,.16); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+
+/* nuance picker */
+.picker { display: grid; gap: 12px; }
+.row-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+h2 { margin: 0; font-size: 20px; letter-spacing: -.01em; text-wrap: balance; }
+.hint { color: var(--ink-2); font-size: 13px; }
+.nuances { display: grid; grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.nuance { width: 100%; display: grid; gap: 8px; padding: 8px 8px 10px; border-radius: var(--r); border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink); font: inherit; text-align: left; cursor: pointer; transition: border-color .15s, transform .15s; }
+.nuance:hover { transform: translateY(-1px); }
+.nuance:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.nuance[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.swatch { aspect-ratio: 16 / 9; border-radius: 8px; background: center / cover no-repeat; max-width: 100%; }
+.nuance b { font-size: 14px; font-weight: 600; }
+.nuance small { display: block; color: var(--ink-2); font: 11px/1.2 var(--mono); letter-spacing: .02em; }
+
+/* document groups */
+.group { display: grid; gap: 12px; }
+.app { display: flex; align-items: center; gap: 10px; }
+.app i { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; font: 700 12px/1 var(--font); font-style: normal; color: #FFFFFF; }
+.app .w { background: #2B579A; } .app .p { background: #C43E1C; } .app .x { background: #1E7145; }
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 900px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 460px) { .cards { grid-template-columns: minmax(0, 1fr); } }
+.card { display: grid; grid-template-rows: auto 1fr auto; gap: 10px; padding: 12px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); min-width: 0; }
+.card h3 { margin: 0; font-size: 15px; letter-spacing: -.005em; }
+.card p { margin: 2px 0 0; color: var(--ink-2); font-size: 13px; }
+.dl { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.size { color: var(--ink-3); font: 12px var(--mono); font-variant-numeric: tabular-nums; }
+button.get { font: 600 13px var(--font); padding: 8px 14px; border-radius: 99px; border: 0; background: var(--ui-accent); color: #FFFFFF; cursor: pointer; }
+:root[data-theme="dark"] button.get { color: #0B0B0D; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) button.get { color: #0B0B0D; } }
+button.get:focus-visible, button.ghost:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+button.get[disabled] { opacity: .5; cursor: progress; }
+
+/* previews: paper in the chosen nuance */
+.pv { position: relative; border-radius: 10px; background: var(--bg); display: grid; place-items: center; padding: 14px; aspect-ratio: 4 / 3; max-width: 100%; overflow: hidden; }
+.page { background: var(--paper); border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 4px 14px rgba(0,0,0,.08); overflow: hidden; position: relative; }
+.a4 { height: 100%; aspect-ratio: 210 / 297; }
+.wide { width: 100%; aspect-ratio: 16 / 9; }
+.band { position: absolute; inset: 0 0 auto 0; height: 36%; background: var(--accent) center / cover; background-image: var(--art); }
+.ln { position: absolute; left: 12%; height: 3.2%; border-radius: 2px; background: var(--paper-line); }
+.ln.t { background: var(--paper-ink); height: 5%; }
+.ln.a { background: var(--accent); }
+.slide-bg { position: absolute; inset: 0; background: var(--accent) center / cover; background-image: var(--art); }
+.slide-t { position: absolute; left: 7%; bottom: 22%; width: 56%; height: 9%; border-radius: 2px; background: #FFFFFF; }
+.slide-s { position: absolute; left: 7%; bottom: 14%; width: 38%; height: 4%; border-radius: 2px; background: rgba(255,255,255,.6); }
+.bars { position: absolute; left: 10%; right: 10%; bottom: 14%; height: 46%; display: flex; align-items: flex-end; gap: 6%; }
+.bars span { flex: 1; background: var(--accent); border-radius: 1px; }
+.grid { position: absolute; inset: 18% 6% 8% 6%; background:
+  repeating-linear-gradient(to bottom, var(--paper-line) 0 1px, transparent 1px 12%); }
+.gantt { position: absolute; height: 7%; border-radius: 2px; background: var(--accent); }
+.gantt.s { opacity: .25; }
+
+/* packs */
+.packs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 700px) { .packs { grid-template-columns: minmax(0, 1fr); } }
+.pack { display: grid; gap: 8px; padding: 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); min-width: 0; }
+.pack h3 { margin: 0; font-size: 16px; }
+.pack p { margin: 0; color: var(--ink-2); font-size: 13px; max-width: 60ch; }
+.pack .dl { margin-top: 6px; }
+
+.note { color: var(--ink-2); font-size: 13px; max-width: 72ch; }
+.toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); max-width: calc(100% - 32px);
+  padding: 10px 16px; border-radius: 12px; background: var(--ink); color: var(--bg); font-size: 14px; box-shadow: 0 6px 24px rgba(0,0,0,.2); }
+.toast.err { background: var(--err); color: #FFFFFF; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="hero" id="hero">
+    <span class="now" id="now">Glacier</span>
+    <div class="hero-in">
+      <span class="eyebrow">Modèles Office · Halo</span>
+      <h1>Halo</h1>
+      <p>Choisis une nuance, puis télécharge le document : il s’ouvre déjà réglé, couverture, couleurs et police comprises.</p>
+    </div>
+  </header>
+
+  <section class="picker" aria-labelledby="h-n">
+    <div class="row-head"><h2 id="h-n">Nuance</h2><span class="hint">De la nuit vers la lumière · accent = teinte du milieu</span></div>
+    <ul class="nuances" id="nuances"></ul>
+  </section>
+
+  <section class="group" aria-labelledby="h-w">
+    <div class="app"><i class="w" aria-hidden="true">W</i><h2 id="h-w">Word</h2></div>
+    <div class="cards" id="g-word"></div>
+  </section>
+  <section class="group" aria-labelledby="h-p">
+    <div class="app"><i class="p" aria-hidden="true">P</i><h2 id="h-p">PowerPoint</h2></div>
+    <div class="cards" id="g-ppt"></div>
+  </section>
+  <section class="group" aria-labelledby="h-x">
+    <div class="app"><i class="x" aria-hidden="true">X</i><h2 id="h-x">Excel</h2></div>
+    <div class="cards" id="g-xl"></div>
+  </section>
+
+  <section class="group" aria-labelledby="h-k">
+    <h2 id="h-k">Tout d’un coup</h2>
+    <div class="packs">
+      <div class="pack">
+        <h3 id="pk-n">Les 17 documents en Glacier</h3>
+        <p>Word, PowerPoint et Excel dans la nuance choisie, en un seul .zip.</p>
+        <div class="dl"><span class="size" id="pk-n-size">≈ 3 Mo</span><button class="get" id="pk-n-btn" type="button">Télécharger</button></div>
+      </div>
+      <div class="pack">
+        <h3>Pack Office complet</h3>
+        <p>Les modèles (.dotx, .potx, .xltx) en français et en anglais, les 12 thèmes Office, les jeux de couleurs, les images et l’installateur Mac. Pour avoir Halo dans Fichier → Nouveau et changer de nuance par Création → Thèmes.</p>
+        <div class="dl"><span class="size" id="pk-all-size">27 Mo</span><button class="get" id="pk-all-btn" type="button">Télécharger</button></div>
+      </div>
+    </div>
+  </section>
+
+  <p class="note">Les documents sont en Helvetica ; Windows et Office en ligne affichent Arial à la place. Les textes gris se remplacent d’un clic, les dates se mettent à jour à l’ouverture. Dans Word : clic droit sur la table des matières → Mettre à jour les champs.</p>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>window.HALO_SIZES = {"minuit/rapport":505732,"minuit/bachelor":507348,"minuit/cahier":497264,"minuit/fiche":16932,"minuit/pv":18272,"minuit/lettre":17801,"minuit/presentation":557730,"minuit/soutenance":556894,"minuit/pitch":542798,"minuit/groupe":538210,"minuit/poster":496410,"minuit/notes":16533,"minuit/suivi":533221,"minuit/analyse":15276,"minuit/planning":24142,"minuit/heures":15064,"minuit/budget":13865,"glacier/rapport":436146,"glacier/bachelor":437761,"glacier/cahier":427677,"glacier/fiche":16932,"glacier/pv":18272,"glacier/lettre":17801,"glacier/presentation":487392,"glacier/soutenance":486561,"glacier/pitch":472459,"glacier/groupe":467873,"glacier/poster":426825,"glacier/notes":16539,"glacier/suivi":462880,"glacier/analyse":15279,"glacier/planning":24146,"glacier/heures":15066,"glacier/budget":13868,"ardoise/rapport":471451,"ardoise/bachelor":473066,"ardoise/cahier":462982,"ardoise/fiche":16932,"ardoise/pv":18272,"ardoise/lettre":17801,"ardoise/presentation":523500,"ardoise/soutenance":522667,"ardoise/pitch":508565,"ardoise/groupe":503979,"ardoise/poster":462131,"ardoise/notes":16536,"ardoise/suivi":498991,"ardoise/analyse":15278,"ardoise/planning":24149,"ardoise/heures":15066,"ardoise/budget":13868,"orage/rapport":507736,"orage/bachelor":509351,"orage/cahier":499268,"orage/fiche":16925,"orage/pv":18265,"orage/lettre":17794,"orage/presentation":561061,"orage/soutenance":560227,"orage/pitch":546126,"orage/groupe":541540,"orage/poster":498425,"orage/notes":16535,"orage/suivi":536549,"orage/analyse":15278,"orage/planning":24146,"orage/heures":15065,"orage/budget":13866,"crepuscule/rapport":517291,"crepuscule/bachelor":518906,"crepuscule/cahier":508822,"crepuscule/fiche":16939,"crepuscule/pv":18279,"crepuscule/lettre":17808,"crepuscule/presentation":570272,"crepuscule/soutenance":569439,"crepuscule/pitch":555341,"crepuscule/groupe":550754,"crepuscule/poster":507968,"crepuscule/notes":16545,"crepuscule/suivi":545762,"crepuscule/analyse":15291,"crepuscule/planning":24154,"crepuscule/heures":15075,"crepuscule/budget":13881,"prune/rapport":527174,"prune/bachelor":528790,"prune/cahier":518706,"prune/fiche":16929,"prune/pv":18269,"prune/lettre":17798,"prune/presentation":580125,"prune/soutenance":579297,"prune/pitch":565196,"prune/groupe":560609,"prune/poster":517861,"prune/notes":16534,"prune/suivi":555619,"prune/analyse":15279,"prune/planning":24150,"prune/heures":15068,"prune/budget":13867,"corail/rapport":506394,"corail/bachelor":508010,"corail/cahier":497925,"corail/fiche":16927,"corail/pv":18267,"corail/lettre":17796,"corail/presentation":558972,"corail/soutenance":558136,"corail/pitch":544040,"corail/groupe":539452,"corail/poster":497079,"corail/notes":16535,"corail/suivi":534463,"corail/analyse":15277,"corail/planning":24144,"corail/heures":15065,"corail/budget":13867,"braise/rapport":514205,"braise/bachelor":515820,"braise/cahier":505737,"braise/fiche":16926,"braise/pv":18266,"braise/lettre":17795,"braise/presentation":566735,"braise/soutenance":565900,"braise/pitch":551801,"braise/groupe":547215,"braise/poster":504889,"braise/notes":16533,"braise/suivi":542225,"braise/analyse":15277,"braise/planning":24142,"braise/heures":15064,"braise/budget":13865,"ambre/rapport":469544,"ambre/bachelor":471159,"ambre/cahier":461073,"ambre/fiche":16925,"ambre/pv":18265,"ambre/lettre":17794,"ambre/presentation":521392,"ambre/soutenance":520557,"ambre/pitch":506456,"ambre/groupe":501873,"ambre/poster":460228,"ambre/notes":16533,"ambre/suivi":496881,"ambre/analyse":15275,"ambre/planning":24142,"ambre/heures":15063,"ambre/budget":13865,"foret/rapport":499437,"foret/bachelor":501052,"foret/cahier":490968,"foret/fiche":16932,"foret/pv":18272,"foret/lettre":17801,"foret/presentation":551707,"foret/soutenance":550878,"foret/pitch":536774,"foret/groupe":532189,"foret/poster":490123,"foret/notes":16538,"foret/suivi":527199,"foret/analyse":15281,"foret/planning":24148,"foret/heures":15068,"foret/budget":13870,"aurore/rapport":481153,"aurore/bachelor":482768,"aurore/cahier":472685,"aurore/fiche":16934,"aurore/pv":18274,"aurore/lettre":17803,"aurore/presentation":532988,"aurore/soutenance":532161,"aurore/pitch":518054,"aurore/groupe":513470,"aurore/poster":471833,"aurore/notes":16534,"aurore/suivi":508479,"aurore/analyse":15281,"aurore/planning":24144,"aurore/heures":15065,"aurore/budget":13867,"lagon/rapport":492010,"lagon/bachelor":493625,"lagon/cahier":483542,"lagon/fiche":16932,"lagon/pv":18272,"lagon/lettre":17801,"lagon/presentation":543971,"lagon/soutenance":543141,"lagon/pitch":529038,"lagon/groupe":524454,"lagon/poster":482690,"lagon/notes":16532,"lagon/suivi":519463,"lagon/analyse":15275,"lagon/planning":24145,"lagon/heures":15062,"lagon/budget":13864};</script>
+<script src="js/jszip.min.js"></script>
+<script>
+const NUANCES = [
+  ['minuit', 'Minuit', '1B3A8C', '3D7BFF'], ['glacier', 'Glacier', '2B5C86', '9CC9F0'], ['ardoise', 'Ardoise', '33415E', '8EA2C8'],
+  ['orage', 'Orage', '2A3140', '6B7A99'], ['crepuscule', 'Crépuscule', '3A1D6E', '7B5CFF'], ['prune', 'Prune', '4A1438', 'B04A8C'],
+  ['corail', 'Corail', '5A1A2A', 'FF6B6B'], ['braise', 'Braise', '5A1E10', 'E2683A'], ['ambre', 'Ambre', '5C4214', 'D9A441'],
+  ['foret', 'Forêt', '144A33', '3FA27A'], ['aurore', 'Aurore', '0E4F5C', '3FD0B0'], ['lagon', 'Lagon', '0B4A66', '33B5E5'],
+];
+// id, title, line, extension, preview kind
+const DOCS = {
+  'g-word': [
+    ['rapport', 'Rapport de projet', 'Couverture, sommaire automatique, chapitres guidés.', 'docx', 'cover'],
+    ['bachelor', 'Travail de bachelor', 'Pages liminaires, listes, annexes, déclaration.', 'docx', 'cover'],
+    ['cahier', 'Cahier des charges', 'Objectifs, exigences avec priorités, jalons, validation.', 'docx', 'cover'],
+    ['fiche', 'Fiche de cours', 'Essentiel, notions clés, pièges, questions d’examen.', 'docx', 'page'],
+    ['pv', 'Procès-verbal', 'Présences, ordre du jour, décisions, actions.', 'docx', 'page'],
+    ['lettre', 'Lettre formelle', 'Format suisse, enveloppe à fenêtre à droite.', 'docx', 'letter'],
+  ],
+  'g-ppt': [
+    ['presentation', 'Modèle complet', '17 mises en page, de la couverture aux sources.', 'pptx', 'title'],
+    ['soutenance', 'Soutenance de projet', 'Contexte, démarche, résultats, questions.', 'pptx', 'section'],
+    ['groupe', 'Présentation de groupe', '10 minutes, qui présente quoi, trois parties.', 'pptx', 'title'],
+    ['pitch', 'Pitch', 'Problème, solution, marché, équipe.', 'pptx', 'stat'],
+    ['suivi', 'Suivi de projet', 'Avancement, jalons, risques, décisions.', 'pptx', 'chart'],
+    ['poster', 'Poster académique', 'A1 portrait, trois colonnes, figures et résultat clé.', 'pptx', 'poster'],
+  ],
+  'g-xl': [
+    ['analyse', 'Analyse de données', 'Statistiques, tableau croisé, graphiques.', 'xlsx', 'bars'],
+    ['planning', 'Planning de projet', 'Gantt par semaine, statuts automatiques.', 'xlsx', 'gantt'],
+    ['heures', 'Journal des heures', 'Heures par membre, catégorie et semaine.', 'xlsx', 'bars'],
+    ['budget', 'Budget de projet', 'Prévu, dépensé, financement, solde.', 'xlsx', 'bars'],
+    ['notes', 'Suivi des notes', 'Moyennes 1 à 6, note requise, crédits ECTS.', 'xlsx', 'bars'],
+  ],
+};
+const SIZES = window.HALO_SIZES || {};
+const $ = (id) => document.getElementById(id);
+let current = 'glacier';
+try { const s = localStorage.getItem('halo-nuance'); if (s && NUANCES.some((n) => n[0] === s)) current = s; } catch (e) {}
+
+function nuance(id) { return NUANCES.find((n) => n[0] === id); }
+function kb(n) { return n >= 1e6 ? (n / 1e6).toFixed(1).replace('.', ',') + ' Mo' : Math.max(1, Math.round(n / 1e3)) + ' Ko'; }
+
+function preview(kind) {
+  const L = (top, w, cls = '') => `<span class="ln ${cls}" style="top:${top}%;width:${w}%"></span>`;
+  if (kind === 'cover') return `<div class="page a4"><span class="band"></span>${L(46, 30, 'a')}${L(52, 62, 't')}${L(60, 48)}${L(70, 76)}${L(75, 76)}</div>`;
+  if (kind === 'page') return `<div class="page a4">${L(8, 76)}${L(16, 22, 'a')}${L(21, 58, 't')}${L(31, 76)}${L(36, 76)}${L(46, 8, 'a')}${L(46, 0)}<span class="ln t" style="top:45%;left:24%;width:40%"></span>${L(54, 76)}${L(59, 66)}</div>`;
+  if (kind === 'letter') return `<div class="page a4">${L(6, 32, 't')}${L(11, 40)}<span class="ln" style="top:22%;left:56%;width:32%"></span><span class="ln" style="top:27%;left:56%;width:26%"></span>${L(40, 30)}${L(47, 44, 't')}${L(55, 76)}${L(60, 76)}${L(65, 60)}</div>`;
+  if (kind === 'poster') return `<div class="page a4"><span class="band" style="height:24%"></span>${[12, 40, 68].map((x) => `<span class="ln a" style="top:30%;left:${x}%;width:20%"></span><span class="ln" style="top:36%;left:${x}%;width:22%"></span><span class="ln" style="top:41%;left:${x}%;width:22%"></span><span class="ln" style="top:50%;left:${x}%;width:22%;height:14%"></span><span class="ln" style="top:70%;left:${x}%;width:22%"></span>`).join('')}</div>`;
+  if (kind === 'title') return `<div class="page wide"><span class="slide-bg"></span><span class="slide-t"></span><span class="slide-s"></span></div>`;
+  if (kind === 'section') return `<div class="page wide"><span class="slide-bg"></span><span class="slide-t" style="width:30%;bottom:auto;top:12%;height:14%;opacity:.7"></span><span class="slide-t"></span></div>`;
+  if (kind === 'stat') return `<div class="page wide">${L(30, 18, 'a')}<span class="ln a" style="top:38%;left:12%;width:40%;height:18%"></span>${L(64, 50)}</div>`;
+  if (kind === 'chart') return `<div class="page wide">${L(12, 16, 'a')}${L(18, 50, 't')}<span class="bars">${[45, 30, 80, 55, 25].map((h) => `<span style="height:${h}%"></span>`).join('')}</span></div>`;
+  if (kind === 'gantt') return `<div class="page wide"><span class="grid"></span>${[[10, 20, 30], [22, 30, 40], [34, 44, 26], [46, 58, 30], [58, 66, 22]].map(([t, l, w]) => `<span class="gantt" style="top:${t + 14}%;left:${l}%;width:${w * .5}%"></span><span class="gantt s" style="top:${t + 14}%;left:${l + w * .5}%;width:${w * .5}%"></span>`).join('')}</div>`;
+  return `<div class="page wide"><span class="grid"></span><span class="bars" style="left:52%;right:8%">${[40, 70, 55, 90].map((h) => `<span style="height:${h}%"></span>`).join('')}</span></div>`;
+}
+
+function renderNuances() {
+  $('nuances').innerHTML = NUANCES.map(([id, name, mid]) =>
+    `<li><button class="nuance" type="button" id="n-${id}" data-id="${id}" aria-pressed="${id === current}">` +
+    `<span class="swatch" style="background-image:url('img/${id}.jpg');background-color:#${mid}"></span>` +
+    `<span><b>${name}</b><small>#${mid}</small></span></button></li>`).join('');
+  $('nuances').addEventListener('click', (e) => { const b = e.target.closest('.nuance'); if (b) select(b.dataset.id); });
+}
+
+function renderDocs() {
+  for (const [gid, list] of Object.entries(DOCS)) {
+    $(gid).innerHTML = list.map(([id, title, line, ext, kind]) =>
+      `<article class="card"><div class="pv" aria-hidden="true">${preview(kind)}</div>` +
+      `<div><h3>${title}</h3><p>${line}</p></div>` +
+      `<div class="dl"><span class="size" data-size="${id}">.${ext}</span>` +
+      `<button class="get" type="button" id="b-${id}" data-id="${id}" data-ext="${ext}" data-title="${title}">Télécharger</button></div></article>`).join('');
+    $(gid).addEventListener('click', (e) => { const b = e.target.closest('button.get'); if (b) getDoc(b); });
+  }
+}
+
+function select(id) {
+  current = id;
+  const [, name, mid, light] = nuance(id);
+  const r = document.documentElement.style;
+  r.setProperty('--accent', '#' + mid);
+  r.setProperty('--accent-light', '#' + light);
+  r.setProperty('--art', `url('img/${id}.jpg')`);
+  $('now').textContent = name;
+  $('pk-n').textContent = `Les 17 documents en ${name}`;
+  document.querySelectorAll('.nuance').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === id)));
+  document.querySelectorAll('[data-size]').forEach((s) => {
+    const k = `${id}/${s.dataset.size}`; const ext = s.textContent.split(' · ')[0].split(' ')[0];
+    s.textContent = SIZES[k] ? `${ext} · ${kb(SIZES[k])}` : ext;
+  });
+  const tot = Object.keys(SIZES).filter((k) => k.startsWith(id + '/')).reduce((a, k) => a + SIZES[k], 0);
+  if (tot) $('pk-n-size').textContent = '≈ ' + kb(tot);
+  try { localStorage.setItem('halo-nuance', id); } catch (e) {}
+}
+
+let toastT;
+function toast(msg, err) {
+  const t = $('toast'); t.textContent = msg; t.classList.toggle('err', !!err); t.hidden = false;
+  clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 4200);
+}
+
+// the document's creation date becomes today, so Word's automatic dates show the day of download
+async function stamp(buf) {
+  if (!window.JSZip) return new Blob([buf]);
+  try {
+    const z = await JSZip.loadAsync(buf);
+    const f = z.file('docProps/core.xml');
+    if (f) {
+      const now = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+      const xml = (await f.async('string'))
+        .replace(/(<dcterms:created[^>]*>)[^<]*/, `$1${now}`).replace(/(<dcterms:modified[^>]*>)[^<]*/, `$1${now}`);
+      z.file('docProps/core.xml', xml);
+    }
+    return await z.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+  } catch (e) { return new Blob([buf]); }
+}
+
+async function fetchBuf(path) {
+  const r = await fetch(path);
+  if (!r.ok) throw new Error('missing');
+  return r.arrayBuffer();
+}
+
+async function save(filename, data) {
+  // inside claude.ai the platform's download prompt is used; on a normal website, a plain browser download
+  const dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null;
+  if (dl) {
+    try { await dl.save({ filename, data }); toast(`${filename} enregistré.`); }
+    catch (e) { if (!e || e.code !== 'declined') toast('Le fichier n’a pas pu être enregistré.', true); }
+    return;
+  }
+  const url = URL.createObjectURL(data instanceof Blob ? data : new Blob([data]));
+  const a = document.createElement('a'); a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+  toast(`${filename} téléchargé.`);
+}
+
+async function busy(btn, fn) {
+  btn.disabled = true; const label = btn.textContent; btn.textContent = 'Préparation…';
+  try { await fn(); } catch (e) { toast('Fichier introuvable : recharge la page puis réessaie.', true); }
+  finally { btn.disabled = false; btn.textContent = label; }
+}
+
+function getDoc(btn) {
+  const { id, ext, title } = btn.dataset; const name = nuance(current)[1];
+  busy(btn, async () => {
+    const blob = await stamp(await fetchBuf(`files/${current}/${id}.${ext}`));
+    await save(`Halo - ${title} (${name}).${ext}`, blob);
+  });
+}
+
+function allIds() { return Object.values(DOCS).flat().map(([id, title, , ext]) => [id, title, ext]); }
+
+$('pk-n-btn').addEventListener('click', (e) => {
+  const btn = e.currentTarget; const name = nuance(current)[1];
+  busy(btn, async () => {
+    if (!window.JSZip) throw new Error('zip');
+    const z = new JSZip(); const dir = z.folder(`Halo - ${name}`);
+    for (const [id, title, ext] of allIds()) dir.file(`Halo - ${title}.${ext}`, await stamp(await fetchBuf(`files/${current}/${id}.${ext}`)));
+    await save(`Halo - ${name}.zip`, await z.generateAsync({ type: 'blob' }));
+  });
+});
+$('pk-all-btn').addEventListener('click', (e) => {
+  const btn = e.currentTarget;
+  busy(btn, async () => { await save('Halo - Modèles Office.zip', new Blob([await fetchBuf('pack/halo-modeles-office.zip')])); });
+});
+
+renderNuances();
+renderDocs();
+select(current);
+</script>
+
+</body>
+</html>
