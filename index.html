@@ -10,7 +10,8 @@ html,body{margin:0}
 [hidden]{display:none!important}
 img{max-width:100%}
 /* Layout: one nuance surface at the top (the chosen texture, full width), the twelve nuances as a picker
-   under it, then the twelve documents in three app groups, each card a small live preview in that nuance. */
+   under it, then a format picker (Word, PowerPoint, Excel) that shows only that app's documents,
+   each card a small live preview in that nuance. */
 :root {
   --bg: #F5F5F7;
   --surface: #FFFFFF;
@@ -74,9 +75,16 @@ h2 { margin: 0; font-size: 20px; letter-spacing: -.01em; text-wrap: balance; }
 
 /* document groups */
 .group { display: grid; gap: 12px; }
-.app { display: flex; align-items: center; gap: 10px; }
-.app i { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; font: 700 12px/1 var(--font); font-style: normal; color: #FFFFFF; }
-.app .w { background: #2B579A; } .app .p { background: #C43E1C; } .app .x { background: #1E7145; }
+.formats { display: flex; flex-wrap: wrap; gap: 10px; }
+.format { flex: 1 1 150px; display: flex; align-items: center; gap: 10px; padding: 10px 14px 10px 10px; border-radius: var(--r); border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink); font: inherit; text-align: left; cursor: pointer; transition: border-color .15s, transform .15s; }
+.format:hover { transform: translateY(-1px); }
+.format:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.format[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.format i { flex: none; width: 28px; height: 28px; border-radius: 7px; display: grid; place-items: center; font: 700 14px/1 var(--font); font-style: normal; color: #FFFFFF; }
+.format .w { background: #2B579A; } .format .p { background: #C43E1C; } .format .x { background: #1E7145; }
+.format b { font-size: 14px; font-weight: 600; }
+.format small { display: block; color: var(--ink-2); font-size: 12px; }
 .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
 @media (max-width: 900px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 460px) { .cards { grid-template-columns: minmax(0, 1fr); } }
@@ -134,7 +142,7 @@ button.get[disabled] { opacity: .5; cursor: progress; }
     <div class="hero-in">
       <span class="eyebrow">Modèles Office · Halo</span>
       <h1>Halo</h1>
-      <p>Choisis une nuance, puis télécharge le document : il s’ouvre déjà réglé, couverture, couleurs et police comprises.</p>
+      <p>Choisis une nuance, puis un format, et télécharge le document : il s’ouvre déjà réglé, couverture, couleurs et police comprises.</p>
     </div>
   </header>
 
@@ -143,16 +151,11 @@ button.get[disabled] { opacity: .5; cursor: progress; }
     <ul class="nuances" id="nuances"></ul>
   </section>
 
-  <section class="group" aria-labelledby="h-w">
-    <div class="app"><i class="w" aria-hidden="true">W</i><h2 id="h-w">Word</h2></div>
+  <section class="group" aria-labelledby="h-f">
+    <div class="row-head"><h2 id="h-f">Format</h2><span class="hint" id="f-hint"></span></div>
+    <div class="formats" id="formats"></div>
     <div class="cards" id="g-word"></div>
-  </section>
-  <section class="group" aria-labelledby="h-p">
-    <div class="app"><i class="p" aria-hidden="true">P</i><h2 id="h-p">PowerPoint</h2></div>
     <div class="cards" id="g-ppt"></div>
-  </section>
-  <section class="group" aria-labelledby="h-x">
-    <div class="app"><i class="x" aria-hidden="true">X</i><h2 id="h-x">Excel</h2></div>
     <div class="cards" id="g-xl"></div>
   </section>
 
@@ -211,10 +214,16 @@ const DOCS = {
     ['notes', 'Suivi des notes', 'Moyennes 1 à 6, note requise, crédits ECTS.', 'xlsx', 'bars'],
   ],
 };
+// group id, icon class, icon letter, app name
+const FORMATS = [['g-word', 'w', 'W', 'Word'], ['g-ppt', 'p', 'P', 'PowerPoint'], ['g-xl', 'x', 'X', 'Excel']];
 const SIZES = window.HALO_SIZES || {};
 const $ = (id) => document.getElementById(id);
 let current = 'glacier';
-try { const s = localStorage.getItem('halo-nuance'); if (s && NUANCES.some((n) => n[0] === s)) current = s; } catch (e) {}
+let format = 'g-word';
+try {
+  const s = localStorage.getItem('halo-nuance'); if (s && NUANCES.some((n) => n[0] === s)) current = s;
+  const f = localStorage.getItem('halo-format'); if (f && DOCS[f]) format = f;
+} catch (e) {}
 
 function nuance(id) { return NUANCES.find((n) => n[0] === id); }
 function kb(n) { return n >= 1e6 ? (n / 1e6).toFixed(1).replace('.', ',') + ' Mo' : Math.max(1, Math.round(n / 1e3)) + ' Ko'; }
@@ -239,6 +248,25 @@ function renderNuances() {
     `<span class="swatch" style="background-image:url('img/${id}.jpg');background-color:#${mid}"></span>` +
     `<span><b>${name}</b><small>#${mid}</small></span></button></li>`).join('');
   $('nuances').addEventListener('click', (e) => { const b = e.target.closest('.nuance'); if (b) select(b.dataset.id); });
+}
+
+function renderFormats() {
+  $('formats').innerHTML = FORMATS.map(([gid, cls, letter, name]) =>
+    `<button class="format" type="button" data-id="${gid}" aria-pressed="${gid === format}">` +
+    `<i class="${cls}" aria-hidden="true">${letter}</i><span><b>${name}</b><small>${DOCS[gid].length} modèles</small></span></button>`).join('');
+  $('formats').addEventListener('click', (e) => { const b = e.target.closest('.format'); if (b) selectFormat(b.dataset.id); });
+}
+
+function hint() {
+  $('f-hint').textContent = `${DOCS[format].length} modèles ${FORMATS.find((f) => f[0] === format)[3]} en ${nuance(current)[1]}`;
+}
+
+function selectFormat(gid) {
+  format = gid;
+  document.querySelectorAll('.format').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === gid)));
+  for (const [id] of FORMATS) $(id).hidden = id !== gid;
+  hint();
+  try { localStorage.setItem('halo-format', gid); } catch (e) {}
 }
 
 function renderDocs() {
@@ -268,6 +296,7 @@ function select(id) {
   });
   const tot = Object.keys(SIZES).filter((k) => k.startsWith(id + '/')).reduce((a, k) => a + SIZES[k], 0);
   if (tot) $('pk-n-size').textContent = '≈ ' + kb(tot);
+  hint();
   try { localStorage.setItem('halo-nuance', id); } catch (e) {}
 }
 
@@ -345,8 +374,10 @@ $('pk-all-btn').addEventListener('click', (e) => {
 });
 
 renderNuances();
+renderFormats();
 renderDocs();
 select(current);
+selectFormat(format);
 </script>
 
 </body>
